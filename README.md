@@ -1,41 +1,44 @@
-# Hello World Windows Widget
+# Hello World Widgets Board provider
 
-A small Windows 11-style, always-on-top widget written in C# and WPF. It displays **Hello world**, can be dragged around the desktop, and has a close button.
+This is a Windows 11 **Widgets Board** provider. After it has been packaged, installed, and pinned, it appears in the board opened with `Win+W`; it is not a floating desktop window.
 
-## Requirements
+The provider returns a simple Adaptive Card whose content is **Hello world**.
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) on the development machine
-- Windows 11 to run the widget
+## Project layout
 
-The project targets Windows WPF. It can be built and published on Linux, but its user interface runs only on Windows.
+- `Widget/` contains the C# out-of-process COM server that implements `IWidgetProvider`.
+- `Widget.Package/` contains the MSIX package registration used by the Widgets Board to discover and activate the provider.
 
-## Build
+## Prerequisites
 
-From the repository root, restore dependencies and compile the application:
+- .NET 10 SDK to compile the provider.
+- Windows 11 with Developer Mode enabled to deploy it locally.
+- Visual Studio 2022 or later on Windows, with the **WinUI application development** workload, to build and deploy the MSIX package.
+- Four standard package logos in `Widget.Package/Assets/` and two picker images in `Widget.Package/ProviderAssets/`. See the `README.md` file in each folder for their names.
 
-```bash
-dotnet build HelloWorldWidget/HelloWorldWidget.csproj
-```
+Only packaged applications can be registered as Widgets Board providers. The C# code can be compiled on Linux, but MSIX packaging and deployment must be performed on Windows.
 
-The debug build output is written to `HelloWorldWidget/bin/Debug/net10.0-windows/`.
+## Build the provider on Linux
 
-## Run on Windows
-
-On a Windows machine with the .NET 10 Desktop Runtime or SDK installed, run:
-
-```powershell
-dotnet run --project .\HelloWorldWidget\HelloWorldWidget.csproj
-```
-
-## Publish a standalone Windows executable
-
-Build a self-contained 64-bit Windows release from Linux or Windows:
+From the repository root:
 
 ```bash
-dotnet publish HelloWorldWidget/HelloWorldWidget.csproj \
-  -c Release \
-  -r win-x64 \
-  --self-contained true
+dotnet build Widget/Widget.csproj -r win-x64
 ```
 
-Copy the contents of `HelloWorldWidget/bin/Release/net10.0-windows/win-x64/publish/` to a Windows 11 computer and run `HelloWorldWidget.exe`.
+This validates and produces the Windows provider executable in `Widget/bin/Debug/net10.0-windows10.0.19041.0/win-x64/`.
+
+## Package and test on Windows
+
+1. Open `Links.slnx` in Visual Studio.
+2. Add the required PNG logo and picker image files named in the two asset-folder READMEs.
+3. Select the `x64` solution platform.
+4. Build the solution, then right-click **Widget.Package** and choose **Deploy**. Visual Studio creates and installs a test-signed MSIX package.
+5. Open the Widgets Board with `Win+W`, choose **Add widgets**, locate **Hello world**, and pin it.
+
+The Widgets Board launches the provider when the widget is pinned and requests its card content; do not launch `Widget.exe` yourself.
+
+## References
+
+- [Implement a widget provider in a C# Windows app](https://learn.microsoft.com/windows/apps/develop/widgets/implement-widget-provider-cs)
+- [Windows widget provider overview](https://learn.microsoft.com/windows/apps/develop/widgets/widget-providers)

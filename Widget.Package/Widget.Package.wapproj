@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <WapProjPath>$(MSBuildExtensionsPath32)\Microsoft\DesktopBridge\</WapProjPath>
+    <ProjectGuid>4D326D55-4A6E-438D-9A99-2E4CA4B3D657</ProjectGuid>
+    <TargetPlatformVersion>10.0.19041.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <EntryPointProjectUniqueName>..\Widget\Widget.csproj</EntryPointProjectUniqueName>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Widget\Widget.csproj">
+      <Project>{1E3A84F6-5BDA-4EAF-9B9C-CCB2D55182B4}</Project>
+      <Name>Widget</Name>
+    </ProjectReference>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.3.1">
+      <IncludeAssets>build</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
+</Project>

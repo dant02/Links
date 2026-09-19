@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+         xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+         IgnorableNamespaces="uap uap3 com">
+  <Identity Name="DanT02.Links"
+            Publisher="CN=DanT02"
+            Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>Links widget</DisplayName>
+    <PublisherDisplayName>DanT02</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+  <Applications>
+    <Application Id="App" Executable="Widget\Widget.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="Links widget"
+                          Description="Displays Hello world in the Windows Widgets Board"
+                          BackgroundColor="transparent"
+                          Square150x150Logo="Assets\Square150x150Logo.png"
+                          Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="Widget\Widget.exe" DisplayName="Links widget">
+              <com:Class Id="5B5A2943-3A52-4AE6-9D7B-8C811E342D12" DisplayName="Links widget" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+        <uap3:Extension Category="windows.appExtension">
+          <uap3:AppExtension Name="com.microsoft.windows.widgets"
+                             DisplayName="Links widget"
+                             Id="DanT02.Links"
+                             PublicFolder="Public">
+            <uap3:Properties>
+              <WidgetProvider>
+                <ProviderIcons>
+                  <Icon Path="ProviderAssets\HelloWorld.png" />
+                </ProviderIcons>
+                <Activation>
+                  <CreateInstance ClassId="5B5A2943-3A52-4AE6-9D7B-8C811E342D12" />
+                </Activation>
+                <Definitions>
+                  <Definition Id="DanT02.Links"
+                              DisplayName="Links widget"
+                              Description="Links widget"
+                              AllowMultiple="false">
+                    <Capabilities>
+                      <Capability><Size Name="small" /></Capability>
+                      <Capability><Size Name="medium" /></Capability>
+                      <Capability><Size Name="large" /></Capability>
+                    </Capabilities>
+                    <ThemeResources>
+                      <Icons><Icon Path="Assets\Square150x150Logo.png" /></Icons>
+                      <Screenshots><Screenshot Path="ProviderAssets\Screenshot.png" DisplayAltText="Widget screenshot" /></Screenshots>
+                      <DarkMode />
+                      <LightMode />
+                    </ThemeResources>
+                  </Definition>
+                </Definitions>
+              </WidgetProvider>
+            </uap3:Properties>
+          </uap3:AppExtension>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <Capability Name="internetClient" />
+  </Capabilities>
+</Package>
