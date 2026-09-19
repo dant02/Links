@@ -1,0 +1,32 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio workspace and user settings
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code workspace settings
+.vscode/
+
+# Test results and code coverage
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+# NuGet packages and local caches
+*.nupkg
+*.snupkg
+packages/
+
+# Publish and deployment artifacts
+publish/
+artifacts/
+
+# OS files
+.DS_Store
+Thumbs.db
