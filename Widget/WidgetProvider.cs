@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.Json.Nodes;
 using Microsoft.Windows.Widgets.Providers;
 
 namespace Links;
@@ -11,25 +13,6 @@ internal sealed class WidgetProvider : IWidgetProvider
     internal static readonly Guid ClassId = typeof(WidgetProvider).GUID;
 
     internal const string DefinitionId = "HelloWorldWidget";
-
-    private const string Template = """
-        {
-          "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-          "type": "AdaptiveCard",
-          "version": "1.5",
-          "body": [
-            {
-              "type": "TextBlock",
-              "text": "Hello world",
-              "size": "ExtraLarge",
-              "weight": "Bolder",
-              "wrap": true,
-              "horizontalAlignment": "Center",
-              "spacing": "Large"
-            }
-          ]
-        }
-        """;
 
     private static readonly ConcurrentDictionary<string, WidgetInfo> Widgets = new();
     private static readonly ManualResetEvent NoWidgetsRemaining = new(initialState: false);
@@ -72,7 +55,18 @@ internal sealed class WidgetProvider : IWidgetProvider
 
     public void OnActionInvoked(WidgetActionInvokedArgs actionInvokedArgs)
     {
-        // The Hello world card has no actions.
+        switch (actionInvokedArgs.Verb)
+        {
+            case "open":
+                Launch(ReadLinkId(actionInvokedArgs.Data));
+                break;
+            case "import":
+                ImportLinks();
+                break;
+            case "export":
+                ExportLinks();
+                break;
+        }
     }
 
     public void OnWidgetContextChanged(WidgetContextChangedArgs contextChangedArgs)
@@ -85,6 +79,94 @@ internal sealed class WidgetProvider : IWidgetProvider
 
     internal static void WaitForAllWidgetsToBeRemoved() => NoWidgetsRemaining.WaitOne();
 
+    private static void ImportLinks()
+    {
+        var path = NativeFileDialog.OpenXml();
+        if (string.IsNullOrWhiteSpace(path) || !LinkStore.TryImport(path))
+        {
+            return;
+        }
+
+        UpdateAllWidgets();
+    }
+
+    private static void ExportLinks()
+    {
+        var path = NativeFileDialog.SaveXml();
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return;
+        }
+
+        LinkStore.Export(path);
+    }
+
+    private static void Launch(string? id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return;
+        }
+
+        var link = LinkStore.Load().FirstOrDefault(item => item.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+        if (link is null)
+        {
+            return;
+        }
+
+        if (link.Type.Equals(LinkItem.TypeRdp, StringComparison.OrdinalIgnoreCase))
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "mstsc.exe",
+                Arguments = $"/v:{link.Target}",
+                UseShellExecute = true,
+            });
+            return;
+        }
+
+        if (link.Type.Equals(LinkItem.TypeBatch, StringComparison.OrdinalIgnoreCase))
+        {
+            var workingDirectory = string.IsNullOrWhiteSpace(link.WorkingDirectory)
+                ? Path.GetDirectoryName(link.Target)
+                : link.WorkingDirectory;
+            var keep = link.KeepWindowOpen ? "/k" : "/c";
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = $"{keep} \"{link.Target}\"",
+                WorkingDirectory = workingDirectory ?? string.Empty,
+                UseShellExecute = true,
+            });
+        }
+    }
+
+    private static string? ReadLinkId(string? data)
+    {
+        if (string.IsNullOrWhiteSpace(data))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonNode.Parse(data)?["id"]?.GetValue<string>();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    private static void UpdateAllWidgets()
+    {
+        foreach (var widget in Widgets.Values)
+        {
+            UpdateWidget(widget);
+        }
+    }
+
     private static void UpdateWidget(WidgetInfo widget)
     {
         if (widget.DefinitionId != DefinitionId)
@@ -94,7 +176,7 @@ internal sealed class WidgetProvider : IWidgetProvider
 
         var request = new WidgetUpdateRequestOptions(widget.Id)
         {
-            Template = Template,
+            Template = CardTemplate.Build(LinkStore.Load()),
             Data = "{}",
             CustomState = string.Empty,
         };

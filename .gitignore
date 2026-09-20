@@ -8,6 +8,7 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.cache
 
 # Visual Studio Code workspace settings
 .vscode/

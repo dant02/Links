@@ -1,8 +1,22 @@
-# Hello World Widgets Board provider
+# Links widget for Windows 11 Widget board
 
-This is a Windows 11 **Widgets Board** provider. After it has been packaged, installed, and pinned, it appears in the board opened with `Win+W`; it is not a floating desktop window.
+This is a widget for Windows 11 **Widgets Board**. After it has been packaged, installed, and pinned, it appears in the board opened with `Win+W`.
 
-The provider returns a simple Adaptive Card whose content is **Hello world**.
+The widget reads links from `%LOCALAPPDATA%\Links\links.xml` and shows each one as a clickable row on the widget card. **Import** and **Export** on the card open a file dialog so you can replace or copy that XML.
+
+If the file is missing, it is created with two defaults: **RDP to 10.0.0.1** (`rdp`, launches `mstsc`) and **Build DB** (`batch`, runs `cmd /k` so the window stays open).
+
+```xml
+<links>
+  <link id="rdp-lab" type="rdp" title="RDP to 10.0.0.1" target="10.0.0.1" />
+  <link id="db" type="batch" title="Build DB"
+        target="X:\workspace\build_db.bat"
+        workingDirectory="X:\workspace"
+        keepWindowOpen="true" />
+</links>
+```
+
+`type` must be `rdp` or `batch`. When installed as MSIX, `%LOCALAPPDATA%` is the package’s private AppData; use Export if you want a copy you can edit elsewhere.
 
 ## Project layout
 
