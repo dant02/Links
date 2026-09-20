@@ -1,13 +1,14 @@
 using System.Collections.Concurrent;
-using System.Threading;
+using System.Runtime.InteropServices;
 using Microsoft.Windows.Widgets.Providers;
 
 namespace Links;
 
+[Guid("5B5A2943-3A52-4AE6-9D7B-8C811E342D12")]
 internal sealed class WidgetProvider : IWidgetProvider
 {
-    // This value must match both ClassId attributes in Widget.Package/Package.appxmanifest.
-    internal static readonly Guid ClassId = Guid.Parse("5B5A2943-3A52-4AE6-9D7B-8C811E342D12");
+    // Must match com:Class Id and CreateInstance ClassId in Package/Package.appxmanifest.
+    internal static readonly Guid ClassId = typeof(WidgetProvider).GUID;
 
     internal const string DefinitionId = "HelloWorldWidget";
 
@@ -40,8 +41,6 @@ internal sealed class WidgetProvider : IWidgetProvider
             var context = info.WidgetContext;
             Widgets.TryAdd(context.Id, new WidgetInfo(context.Id, context.DefinitionId));
         }
-
-        UpdateNoWidgetsEvent();
     }
 
     public void CreateWidget(WidgetContext widgetContext)
